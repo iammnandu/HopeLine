@@ -13,7 +13,7 @@ app.use(authRouter);
 // Initialize database before starting server
 initializeDatabase()
     .then(() => {
-        app.listen(PORT, "172.18.100.199", () => {
+        app.listen(PORT, "172.18.100.178", () => {
             console.log(`Server running on port ${PORT}`);
         });
     })

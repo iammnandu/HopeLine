@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:hopeline/providers/user_provider.dart';
-import 'package:hopeline/screens/home_screen.dart';
-import 'package:hopeline/screens/signup_screen.dart';
-import 'package:hopeline/services/auth_services.dart';
+import 'package:hopeline/features/authentication/providers/user_provider.dart';
+import 'package:hopeline/presentation/onBoarding/home_screen.dart';
+import 'package:hopeline/presentation/onBoarding/signup_screen.dart';
+import 'package:hopeline/features/authentication/services/auth_services.dart';
 import 'package:provider/provider.dart';
 
 void main() {
