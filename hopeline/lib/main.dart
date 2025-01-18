@@ -1,13 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:hopeline/features/authentication/providers/user_provider.dart';
-import 'package:hopeline/presentation/authentication/home_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hopeline/presentation/onBoarding/onboarding_screen.dart';
-import 'package:hopeline/presentation/onBoarding/signup_screen.dart';
-import 'package:hopeline/features/authentication/services/auth_services.dart';
 import 'package:provider/provider.dart';
-import 'package:hopeline/presentation/onBoarding/splash_screen.dart';
+import 'package:http/http.dart' as http;
 
-void main() {
+
+// Features - Music
+import 'package:hopeline/features/music/data/datasources/song_remote_datasource.dart';
+import 'package:hopeline/features/music/data/repository/song_repository_impl.dart';
+import 'package:hopeline/features/music/domain/usecases/get_all_songs.dart';
+import 'package:hopeline/features/music/presentation/bloc/song_bloc.dart';
+import 'package:hopeline/features/music/presentation/bloc/song_event.dart';
+
+// Features - Auth
+import 'package:hopeline/features/authentication/providers/user_provider.dart';
+import 'package:hopeline/features/authentication/services/auth_services.dart';
+
+// Presentation
+import 'package:hopeline/presentation/bottomNavBar/bloc/navigation_bloc.dart';
+import 'package:hopeline/presentation/homepage/home_page.dart';
+import 'package:hopeline/presentation/onBoarding/signup_screen.dart';
+import 'package:hopeline/presentation/onBoarding/splash_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    print("Failed to load .env: $e");
+  }
+
   runApp(
     MultiProvider(
       providers: [
@@ -17,6 +39,7 @@ void main() {
     ),
   );
 }
+
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -36,10 +59,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _initializeApp() async {
-    // Wait for auth initialization
     authService.getUserData(context);
-    
-    // Show splash screen for minimum 3 seconds
     await Future.delayed(const Duration(seconds: 3));
     
     if (mounted) {
@@ -51,43 +71,97 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Hopeline',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        fontFamily: 'Poppins',
-        scaffoldBackgroundColor: Colors.white,
-        appBarTheme: const AppBarTheme(
-          elevation: 0,
-          backgroundColor: Colors.white,
-          iconTheme: IconThemeData(color: Colors.black),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => NavigationBloc(),
         ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            elevation: 0,
-            backgroundColor: Colors.blue,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+        BlocProvider(
+          create: (context) => SongBloc(
+            getAllSongs: GetAllSongs(
+              repository: SongRepositoryImpl(
+                remoteDataSource: SongRemoteDataSourceImpl(
+                  client: http.Client(),
+                ),
+              ),
             ),
-            padding: const EdgeInsets.symmetric(vertical: 16),
+          )..add(FetchSongs()),
+        )
+      ],
+      child: MaterialApp(
+        title: 'Hopeline',
+        theme: ThemeData(
+          primaryColor: const Color(0xFF4CAF50), // Green primary color
+          focusColor: const Color(0xFF388E3C), // Darker green for focus/active states
+          scaffoldBackgroundColor: Colors.white,
+          appBarTheme: const AppBarTheme(
+            elevation: 0,
+            color: Colors.white,
+            iconTheme: IconThemeData(color: Colors.black),
+          ),
+          bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+            backgroundColor: Colors.white,
+            selectedItemColor: Color(0xFF4CAF50),
+            unselectedItemColor: Colors.grey,
+            elevation: 8,
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF4CAF50),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24, 
+                vertical: 16,
+              ),
+            ),
+          ),
+          textTheme: const TextTheme(
+            headlineLarge: TextStyle(
+              color: Colors.black,
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+            ),
+            headlineMedium: TextStyle(
+              color: Colors.black,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+            bodyLarge: TextStyle(
+              color: Colors.black87,
+              fontSize: 16,
+            ),
+            bodyMedium: TextStyle(
+              color: Colors.black87,
+              fontSize: 14,
+            ),
+          ),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF4CAF50),
+            primary: const Color(0xFF4CAF50),
+            secondary: const Color(0xFF388E3C),
+            background: Colors.white,
           ),
         ),
+        debugShowCheckedModeBanner: false,
+        home: _showSplash 
+          ? const SplashScreen()
+          : Consumer<UserProvider>(
+              builder: (context, userProvider, child) {
+                if (userProvider.user.token.isEmpty) {
+                  return const OnboardingScreen();
+                }
+                return HomeScreen();
+              },
+            ),
+        routes: {
+          '/signup': (context) => const SignupScreen(),
+          '/home': (context) => HomeScreen(),
+        },
       ),
-      home: _showSplash 
-        ? const SplashScreen()
-        : Consumer<UserProvider>(
-            builder: (context, userProvider, child) {
-              if (userProvider.user.token.isEmpty) {
-                return const OnboardingScreen();
-              }
-              return const HomeScreen();
-            },
-          ),
-      routes: {
-        '/signup': (context) => const SignupScreen(),
-        '/home': (context) => const HomeScreen(),
-      },
     );
   }
 }

@@ -38,6 +38,12 @@ dependencies:
   provider: ^6.0.5
   http: ^1.2.0
   shared_preferences: ^2.2.2
+  flutter_bloc: ^8.1.6
+  audio_video_progress_bar: ^1.0.1
+  just_audio: ^0.9.18
+  path_provider: ^2.1.1
+  permission_handler: ^11.0.1
+  flutter_dotenv: ^5.0.2
 
 dev_dependencies:
   flutter_test:
@@ -62,8 +68,15 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
+  fonts:
+    - family: AlegreyaSans
+      fonts:
+        - asset: assets/fonts/AlegreyaSans-Regular.ttf
+        - asset: assets/fonts/AlegreyaSans-Bold.ttf
   assets:
     - assets/
+    - assets/fonts/
+    - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
