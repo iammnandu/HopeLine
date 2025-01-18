@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:hopeline/features/authentication/models/user.dart';
 import 'package:hopeline/features/authentication/providers/user_provider.dart';
-import 'package:hopeline/presentation/onBoarding/home_screen.dart';
+import 'package:hopeline/presentation/authentication/home_screen.dart';
 import 'package:hopeline/presentation/onBoarding/signup_screen.dart';
 import 'package:hopeline/features/authentication/utils/constants.dart';
 import 'package:hopeline/features/authentication/utils/utils.dart';
