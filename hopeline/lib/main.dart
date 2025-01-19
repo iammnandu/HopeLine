@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hopeline/presentation/homepage/main_screen.dart';
 import 'package:hopeline/presentation/onBoarding/onboarding_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
-
 
 // Features - Music
 import 'package:hopeline/features/music/data/datasources/song_remote_datasource.dart';
@@ -22,6 +22,7 @@ import 'package:hopeline/presentation/homepage/home_page.dart';
 import 'package:hopeline/presentation/onBoarding/signup_screen.dart';
 import 'package:hopeline/presentation/onBoarding/splash_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
@@ -39,7 +40,6 @@ void main() async {
     ),
   );
 }
-
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -61,7 +61,6 @@ class _MyAppState extends State<MyApp> {
   Future<void> _initializeApp() async {
     authService.getUserData(context);
     await Future.delayed(const Duration(seconds: 3));
-    
     if (mounted) {
       setState(() {
         _showSplash = false;
@@ -91,8 +90,8 @@ class _MyAppState extends State<MyApp> {
       child: MaterialApp(
         title: 'Hopeline',
         theme: ThemeData(
-          primaryColor: const Color(0xFF4CAF50), // Green primary color
-          focusColor: const Color(0xFF388E3C), // Darker green for focus/active states
+          primaryColor: const Color(0xFF4CAF50),
+          focusColor: const Color(0xFF388E3C),
           scaffoldBackgroundColor: Colors.white,
           appBarTheme: const AppBarTheme(
             elevation: 0,
@@ -113,10 +112,7 @@ class _MyAppState extends State<MyApp> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24, 
-                vertical: 16,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             ),
           ),
           textTheme: const TextTheme(
@@ -147,19 +143,19 @@ class _MyAppState extends State<MyApp> {
           ),
         ),
         debugShowCheckedModeBanner: false,
-        home: _showSplash 
-          ? const SplashScreen()
-          : Consumer<UserProvider>(
-              builder: (context, userProvider, child) {
-                if (userProvider.user.token.isEmpty) {
-                  return const OnboardingScreen();
-                }
-                return HomeScreen();
-              },
-            ),
+        home: _showSplash
+    ? const SplashScreen()
+    : Consumer<UserProvider>(
+        builder: (context, userProvider, child) {
+          if (userProvider.user.token.isEmpty) {
+            return const OnboardingScreen();
+          }
+          return MainScreen();
+        },
+      ),
         routes: {
           '/signup': (context) => const SignupScreen(),
-          '/home': (context) => HomeScreen(),
+          '/home': (context) => MainScreen(),
         },
       ),
     );

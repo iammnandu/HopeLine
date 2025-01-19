@@ -59,7 +59,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             FadeTransition(
               opacity: _fadeAnimation,
               child: Image.asset(
-                'images/meditation.jpeg',
+                'assets/images/meditation.jpeg',
                 height: 250,
               ),
             ),

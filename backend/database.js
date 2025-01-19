@@ -26,6 +26,24 @@ async function initializeDatabase() {
             password TEXT NOT NULL
         )
     `);
+
+      // Quiz results table
+  db.run(`CREATE TABLE IF NOT EXISTS quiz_results (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    score INTEGER,
+    total_questions INTEGER,
+    timestamp DATETIME,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  )`);
+
+  // Rewards table to track user points
+  db.run(`CREATE TABLE IF NOT EXISTS user_rewards (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER UNIQUE,
+    total_points INTEGER DEFAULT 0,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  )`);
 }
 
 module.exports = { getDb, initializeDatabase };

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../const/colors.dart';
+import 'package:hopeline/features/quiz/const/colors.dart';
 import 'quiz_screen.dart';
 
 class QuizSplashScreen extends StatelessWidget {
@@ -26,7 +26,7 @@ class QuizSplashScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Image.asset(
-                "image/balloon2.png",
+                "assets/images/balloon2.png",
               ),
               const SizedBox(height: 20),
               const Text(

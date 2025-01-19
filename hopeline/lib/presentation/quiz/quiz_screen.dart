@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import '../Services/api_services.dart';
-import '../const/colors.dart';
+import 'package:hopeline/features/quiz/const/colors.dart';
+import 'package:hopeline/features/quiz/repository/quiz_repository.dart';
+import 'package:hopeline/features/quiz/models/quiz_question.dart';
 
 class QuizScreen extends StatefulWidget {
   const QuizScreen({super.key});
@@ -15,9 +14,9 @@ class QuizScreen extends StatefulWidget {
 
 class _QuizScreenState extends State<QuizScreen> {
   var currentQuestionIndex = 0;
-  int seconds = 60;
+  int seconds = 20;
   Timer? timer;
-  late Future quiz;
+  late Future<List<QuizQuestion>> quiz;
   var isLoaded = false;
   int points = 0;
   var optionsList = [];
@@ -26,13 +25,14 @@ class _QuizScreenState extends State<QuizScreen> {
     Colors.white,
     Colors.white,
     Colors.white,
-    Colors.white,
   ];
+
+  final QuizRepository _quizRepository = QuizRepository();
 
   @override
   void initState() {
     super.initState();
-    quiz = getQuiz();
+    quiz = _quizRepository.getQuestions();
     startTimer();
   }
 
@@ -44,7 +44,6 @@ class _QuizScreenState extends State<QuizScreen> {
 
   resetColors() {
     optionsColor = [
-      Colors.white,
       Colors.white,
       Colors.white,
       Colors.white,
@@ -73,18 +72,39 @@ class _QuizScreenState extends State<QuizScreen> {
     startTimer();
   }
 
-  void showResultDialog() {
+  void showResultDialog(List<QuizQuestion> questions) {
     timer?.cancel();
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Quiz Completed!'),
-          content: Text('Your score: $points points'),
+          backgroundColor: Colors.white,
+          title: const Text(
+            'Assessment Complete!',
+            style: TextStyle(color: blue, fontWeight: FontWeight.bold),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Your score: $points points',
+                style: const TextStyle(fontSize: 18, color: darkBlue),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Remember, this assessment is a tool for self-reflection. Your honest answers help guide your recovery journey.',
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+            ],
+          ),
           actions: <Widget>[
             TextButton(
-              child: const Text('OK'),
+              child: const Text(
+                'Continue Journey',
+                style: TextStyle(color: blue, fontSize: 16),
+              ),
               onPressed: () {
                 Navigator.of(context).pop(); // Close dialog
                 Navigator.of(context).pop(); // Return to previous screen
@@ -94,31 +114,6 @@ class _QuizScreenState extends State<QuizScreen> {
         );
       },
     );
-  }
-
-  Future<void> saveResults() async {
-    try {
-      final response = await http.post(
-        Uri.parse('http://your-backend-url/api/quiz-results'),
-        headers: <String, String>{
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(<String, dynamic>{
-          'userId': 'current-user-id', // Replace with actual user ID
-          'score': points,
-          'totalQuestions': 20,
-          'timestamp': DateTime.now().toIso8601String(),
-        }),
-      );
-
-      if (response.statusCode != 200) {
-        throw Exception('Failed to save results');
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error saving results: ${e.toString()}')),
-      );
-    }
   }
 
   @override
@@ -136,16 +131,15 @@ class _QuizScreenState extends State<QuizScreen> {
             colors: [blue, darkBlue],
           ),
         ),
-        child: FutureBuilder(
+        child: FutureBuilder<List<QuizQuestion>>(
           future: quiz,
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
+          builder: (BuildContext context, AsyncSnapshot<List<QuizQuestion>> snapshot) {
             if (snapshot.hasData) {
-              var data = snapshot.data["results"];
+              var questions = snapshot.data!;
 
               // Check if we've reached the end of questions
-              if (currentQuestionIndex >= data.length) {
-                // If we're past the last question, show results
-                Future.microtask(() => showResultDialog());
+              if (currentQuestionIndex >= questions.length) {
+                Future.microtask(() => showResultDialog(questions));
                 return const Center(
                   child: CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation(Colors.white),
@@ -153,10 +147,10 @@ class _QuizScreenState extends State<QuizScreen> {
                 );
               }
 
+              var currentQuestion = questions[currentQuestionIndex];
+
               if (isLoaded == false) {
-                optionsList = List.from(data[currentQuestionIndex]["incorrect_answers"]);
-                optionsList.add(data[currentQuestionIndex]["correct_answer"]);
-                optionsList.shuffle();
+                optionsList = currentQuestion.options;
                 isLoaded = true;
               }
 
@@ -206,12 +200,30 @@ class _QuizScreenState extends State<QuizScreen> {
                         ],
                       ),
                       const SizedBox(height: 20),
-                      Image.asset("image/ideas.png", width: 200),
-                      const SizedBox(height: 20),
+                      Image.asset("assets/images/ideas.png", width: 100),
+                      const SizedBox(height: 15),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Text(
+                          currentQuestion.category,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 15),
                       Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          "Question ${currentQuestionIndex + 1} of ${data.length}",
+                          "Question ${currentQuestionIndex + 1} of ${questions.length}",
                           style: const TextStyle(
                             color: lightgrey,
                             fontSize: 18,
@@ -220,38 +232,45 @@ class _QuizScreenState extends State<QuizScreen> {
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        data[currentQuestionIndex]["question"],
+                        currentQuestion.question,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 20,
                         ),
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 20),
                       ListView.builder(
                         shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
                         itemCount: optionsList.length,
                         itemBuilder: (BuildContext context, int index) {
-                          var answer = data[currentQuestionIndex]["correct_answer"];
-
                           return GestureDetector(
                             onTap: () {
                               setState(() {
-                                if (answer.toString() == optionsList[index].toString()) {
-                                  optionsColor[index] = Colors.green;
+                                if (optionsList[index] == currentQuestion.correctAnswer) {
+                                  optionsColor[index] = const Color.fromARGB(255, 76, 175, 145);
                                   points = points + 10;
                                 } else {
-                                  optionsColor[index] = Colors.red;
+                                  optionsColor[index] = const Color.fromARGB(255, 234, 201, 50);
                                 }
 
-                                if (currentQuestionIndex < data.length - 1) {
-                                  Future.delayed(const Duration(seconds: 1), () {
+                                // Show explanation in a snackbar
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(currentQuestion.explanation),
+                                    duration: const Duration(seconds: 2),
+                                    backgroundColor: blue,
+                                  ),
+                                );
+
+                                if (currentQuestionIndex < questions.length - 1) {
+                                  Future.delayed(const Duration(seconds: 2), () {
                                     gotoNextQuestion();
                                   });
                                 } else {
-                                  // Save results and show dialog
-                                  saveResults();
-                                  Future.delayed(const Duration(seconds: 1), () {
-                                    showResultDialog();
+                                  Future.delayed(const Duration(seconds: 2), () {
+                                    showResultDialog(questions);
                                   });
                                 }
                               });
@@ -266,11 +285,12 @@ class _QuizScreenState extends State<QuizScreen> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
-                                optionsList[index].toString(),
-                                style: const TextStyle(
-                                  color: Colors.blue,
+                                optionsList[index],
+                                style: TextStyle(
+                                  color: optionsColor[index] == Colors.white ? blue : Colors.white,
                                   fontSize: 18,
                                 ),
+                                textAlign: TextAlign.center,
                               ),
                             ),
                           );
@@ -278,6 +298,13 @@ class _QuizScreenState extends State<QuizScreen> {
                       ),
                     ],
                   ),
+                ),
+              );
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text(
+                  'Error loading questions: ${snapshot.error}',
+                  style: const TextStyle(color: Colors.white),
                 ),
               );
             } else {

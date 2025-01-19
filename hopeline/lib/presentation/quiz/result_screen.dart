@@ -1,14 +1,14 @@
-// results_screen.dart
-
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:hopeline/features/quiz/const/colors.dart';
+import 'package:hopeline/presentation/quiz/quiz_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../const/colors.dart';
-import 'quiz_screen.dart';
 
 class ResultsScreen extends StatefulWidget {
   final int score;
-  
+
   const ResultsScreen({
     Key? key,
     required this.score,
@@ -18,11 +18,13 @@ class ResultsScreen extends StatefulWidget {
   State<ResultsScreen> createState() => _ResultsScreenState();
 }
 
-class _ResultsScreenState extends State<ResultsScreen> with SingleTickerProviderStateMixin {
+class _ResultsScreenState extends State<ResultsScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scoreAnimation;
   int _totalPoints = 0;
   bool _isLoading = true;
+  final storage = const FlutterSecureStorage();
 
   @override
   void initState() {
@@ -38,31 +40,47 @@ class _ResultsScreenState extends State<ResultsScreen> with SingleTickerProvider
     ).animate(CurvedAnimation(
       parent: _controller,
       curve: Curves.easeOut,
-    ))..addListener(() {
-      setState(() {});
-    });
+    ))
+      ..addListener(() {
+        setState(() {});
+      });
 
     _controller.forward();
-    _fetchTotalPoints();
+    _saveQuizResults();
   }
 
-  Future<void> _fetchTotalPoints() async {
+  Future<void> _saveQuizResults() async {
     try {
-      final response = await http.get(
-        Uri.parse('http://your-backend-url/api/user-points/current-user-id'), // Replace with actual user ID
+      final token = await storage.read(key: 'auth-token');
+      if (token == null) {
+        throw Exception('Not authenticated');
+      }
+      String baseUrl = dotenv.env['BASE_URL'] ?? '';
+      print('http://${baseUrl}/api/quiz-results');
+      final response = await http.post(
+        Uri.parse('http://${baseUrl}/api/quiz-results'),
+        headers: {
+          'Content-Type': 'application/json',
+          'auth-token': token,
+        },
+        body: jsonEncode({
+          'score': widget.score,
+          'totalQuestions': 200, // Adjust based on your quiz
+          'timestamp': DateTime.now().toIso8601String(),
+        }),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         setState(() {
-          _totalPoints = data['points'];
+          _totalPoints = data['totalPoints'];
           _isLoading = false;
         });
       } else {
         setState(() {
           _isLoading = false;
         });
-        _showError('Failed to fetch total points');
+        _showError('Failed to save quiz results');
       }
     } catch (e) {
       setState(() {
@@ -70,12 +88,6 @@ class _ResultsScreenState extends State<ResultsScreen> with SingleTickerProvider
       });
       _showError('Network error occurred');
     }
-  }
-
-  void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
   }
 
   @override
@@ -117,7 +129,8 @@ class _ResultsScreenState extends State<ResultsScreen> with SingleTickerProvider
                     width: 200,
                     height: 200,
                     child: CircularProgressIndicator(
-                      value: _scoreAnimation.value / 200, // Assuming max score is 200
+                      value: _scoreAnimation.value /
+                          200, // Assuming max score is 200
                       valueColor: const AlwaysStoppedAnimation(Colors.green),
                       backgroundColor: Colors.white.withOpacity(0.2),
                       strokeWidth: 15,
@@ -169,7 +182,8 @@ class _ResultsScreenState extends State<ResultsScreen> with SingleTickerProvider
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -200,6 +214,12 @@ class _ResultsScreenState extends State<ResultsScreen> with SingleTickerProvider
           ),
         ),
       ),
+    );
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
     );
   }
 }
