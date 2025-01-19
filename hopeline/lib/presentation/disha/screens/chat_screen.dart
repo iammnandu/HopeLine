@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:disha/services/chat_service.dart';
+import 'package:hopeline/presentation/disha/services/chat_service.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});

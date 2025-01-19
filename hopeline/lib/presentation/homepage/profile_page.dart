@@ -30,7 +30,7 @@ class RecoveryProfile extends StatelessWidget {
               CircleAvatar(
                 radius: 50,
                 backgroundColor: Colors.cyan,
-                child: Image.asset('assets/avatar.png'), // Replace with your avatar image
+                child: Image.asset('assets/profile.jpeg'), // Replace with your avatar image
               ),
               const SizedBox(height: 16),
               

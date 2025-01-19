@@ -45,6 +45,10 @@ dependencies:
   permission_handler: ^11.0.1
   flutter_dotenv: ^5.0.2
   flutter_secure_storage: ^9.2.4
+  intl: ^0.18.1
+  flutter_local_notifications: ^14.0.0
+  flutter_markdown: ^0.6.17
+  url_launcher: ^6.1.12
 
 dev_dependencies:
   flutter_test:

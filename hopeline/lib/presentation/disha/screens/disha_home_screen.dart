@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:disha/screens/chat_screen.dart';
-import 'package:disha/screens/exercises_screen.dart';
-import 'package:disha/screens/insights_screen.dart';
-import 'package:disha/screens/strategies_screen.dart';
+import 'package:hopeline/presentation/disha/screens/chat_screen.dart';
+import 'package:hopeline/presentation/disha/screens/exercises_screen.dart';
+import 'package:hopeline/presentation/disha/screens/insights_screen.dart';
+import 'package:hopeline/presentation/disha/screens/strategies_screen.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class DishaHomeScreen extends StatefulWidget {
+  const DishaHomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<DishaHomeScreen> createState() => DishaHomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class DishaHomeScreenState extends State<DishaHomeScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [

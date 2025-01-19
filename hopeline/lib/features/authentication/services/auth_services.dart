@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hopeline/features/authentication/models/user.dart';
 import 'package:hopeline/features/authentication/providers/user_provider.dart';
 import 'package:hopeline/presentation/homepage/home_page.dart';
+import 'package:hopeline/presentation/homepage/main_screen.dart';
 import 'package:hopeline/presentation/onBoarding/signup_screen.dart';
 import 'package:hopeline/features/authentication/utils/utils.dart';
 import 'package:http/http.dart' as http;
@@ -79,7 +80,7 @@ class AuthService {
           await prefs.setString('x-auth-token', jsonDecode(res.body)['token']);
           navigator.pushAndRemoveUntil(
             MaterialPageRoute(
-              builder: (context) => HomeScreen(),
+              builder: (context) => MainScreen(),
             ),
             (route) => false,
           );

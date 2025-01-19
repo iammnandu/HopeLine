@@ -4,6 +4,8 @@ import 'package:hopeline/presentation/bottomNavBar/bloc/navigation_bloc.dart';
 import 'package:hopeline/presentation/bottomNavBar/bloc/navigation_event.dart';
 import 'package:hopeline/presentation/bottomNavBar/bloc/navigation_state.dart';
 import 'package:hopeline/presentation/bottomNavBar/widgets/bottom_nav_bar.dart';
+import 'package:hopeline/presentation/community/community_page.dart';
+import 'package:hopeline/presentation/disha/screens/disha_home_screen.dart';
 import 'package:hopeline/presentation/homepage/home_page.dart';
 import 'package:hopeline/features/meditation/presentation/pages/meditation_screen.dart';
 import 'package:hopeline/features/music/presentation/pages/playlist_screen.dart';
@@ -14,14 +16,14 @@ class MainScreen extends StatelessWidget {
 
   final List<Widget> _pages = [
     HomeScreen(),
-    const MeditationScreen(),
+     WellnessHubCommunity(),
     PlaylistScreen(),
-    const RecoveryProfile(),
+    const DishaHomeScreen(),
   ];
 
   final List<String> _titles = [
     'Hopeline',
-    'Meditation',
+    'Community',
     'Playlist',
     'Profile'
   ];
@@ -37,15 +39,21 @@ class MainScreen extends StatelessWidget {
       leading: Image.asset('assets/menu_burger.png'),
       actions: [
         GestureDetector(
-          onTap: () {
-            final bloc = context.read<NavigationBloc>();
-            bloc.add(NavigationTo(index: 3));
- // Navigate to profile
-          },
+        onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const RecoveryProfile(),
+          ),
+        );
+      },
+
+
+
           child: const Padding(
             padding: EdgeInsets.only(right: 16.0),
             child: CircleAvatar(
-              backgroundImage: AssetImage('assets/profile.png'),
+              backgroundImage: AssetImage('assets/profile.jpeg'),
             ),
           ),
         ),
@@ -75,16 +83,16 @@ class MainScreen extends StatelessWidget {
                 label: 'Home',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.self_improvement),
-                label: 'Meditate',
+                icon: Icon(Icons.group),
+                label: 'Community',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.music_note),
                 label: 'Playlist',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.person),
-                label: 'Profile',
+                icon: Icon(Icons.chat),
+                label: 'Chat',
               ),
             ],
             currentIndex: currentIndex,

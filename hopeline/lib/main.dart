@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hopeline/presentation/disha/services/chat_service.dart';
+import 'package:hopeline/presentation/disha/services/exercise_service.dart';
+import 'package:hopeline/presentation/disha/services/insight_service.dart';
+import 'package:hopeline/presentation/disha/services/strategy_service.dart';
 import 'package:hopeline/presentation/homepage/main_screen.dart';
 import 'package:hopeline/presentation/onBoarding/onboarding_screen.dart';
 import 'package:provider/provider.dart';
@@ -18,13 +22,24 @@ import 'package:hopeline/features/authentication/services/auth_services.dart';
 
 // Presentation
 import 'package:hopeline/presentation/bottomNavBar/bloc/navigation_bloc.dart';
-import 'package:hopeline/presentation/homepage/home_page.dart';
 import 'package:hopeline/presentation/onBoarding/signup_screen.dart';
 import 'package:hopeline/presentation/onBoarding/splash_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+    // Initialize SharedPreferences
+  final prefs = await SharedPreferences.getInstance();
+  
+  // Initialize services
+  final exerciseService = ExerciseService(prefs);
+  final insightService = InsightService(prefs);
+  final strategyService = StrategyService();
+  final chatService = ChatService();
+
+
   try {
     await dotenv.load(fileName: ".env");
   } catch (e) {
@@ -35,6 +50,10 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => UserProvider()),
+        Provider.value(value: exerciseService),
+        Provider.value(value: insightService),
+        Provider.value(value: strategyService),
+        Provider.value(value: chatService),
       ],
       child: const MyApp(),
     ),
