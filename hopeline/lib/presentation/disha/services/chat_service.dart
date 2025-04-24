@@ -1,4 +1,3 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -13,8 +12,8 @@ class ChatMessage {
 }
 
 class ChatService {
-  final String apiUrl = dotenv.env['API_URL'] ?? '';
-  final String apiKey = dotenv.env['API_KEY'] ?? '';
+  final String apiUrl = 'https://api-inference.huggingface.co/models/google/gemma-2-2b-it';
+  final String apiKey = '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';
 
   Future<String> sendMessage(String message) async {
     try {

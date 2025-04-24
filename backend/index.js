@@ -21,7 +21,7 @@ app.use('/songs', songRoutes);
 // Initialize database before starting server
 initializeDatabase()
     .then(() => {
-        app.listen(PORT, "192.168.1.102", () => {
+        app.listen(PORT, "192.168.227.197", () => {
             console.log(`Server running on port ${PORT}`);
         });
     })

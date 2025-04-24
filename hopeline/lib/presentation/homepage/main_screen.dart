@@ -16,17 +16,12 @@ class MainScreen extends StatelessWidget {
 
   final List<Widget> _pages = [
     HomeScreen(),
-     WellnessHubCommunity(),
+    WellnessHubCommunity(),
     PlaylistScreen(),
     const DishaHomeScreen(),
   ];
 
-  final List<String> _titles = [
-    'Hopeline',
-    'Community',
-    'Playlist',
-    'Profile'
-  ];
+  final List<String> _titles = ['Hopeline', 'Community', 'Playlist', 'Disha'];
 
   PreferredSizeWidget _buildAppBar(BuildContext context, int currentIndex) {
     return AppBar(
@@ -39,17 +34,14 @@ class MainScreen extends StatelessWidget {
       leading: Image.asset('assets/menu_burger.png'),
       actions: [
         GestureDetector(
-        onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const RecoveryProfile(),
-          ),
-        );
-      },
-
-
-
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const RecoveryProfile(),
+              ),
+            );
+          },
           child: const Padding(
             padding: EdgeInsets.only(right: 16.0),
             child: CircleAvatar(
@@ -92,7 +84,7 @@ class MainScreen extends StatelessWidget {
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.chat),
-                label: 'Chat',
+                label: 'Disha',
               ),
             ],
             currentIndex: currentIndex,
