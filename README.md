@@ -1,7 +1,7 @@
  # HopeLine
 
 ## Abstract
-HopeLine is a mobile application designed to support individuals recovering from drug addiction through an AI-powered unique mix of tools, mental health support, and engaging interactive features. The application raises awareness and promotes prevention through recovery-oriented support and engagement activities that come with a rewarding system inspired by popular subscription models such as BookMyShow, Spotify, and YouTube.
+HopeLine is a mobile application designed to support individuals recovering from drug addiction through an AI-powered unique mix of tools, mental health support, and engaging interactive features. The application raises awareness and promotes prevention through recovery-oriented support and engagement activities that come with a rewarding system inspired by popular subscription models such as BookMyShow, Spotify,  and YouTube.
 
 ---
 
